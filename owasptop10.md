@@ -32,7 +32,8 @@
    `1.使用允许列表(白名单)：当输入发送到服务器时，将此输入与安全输入或字符列表进行比较。如果输入被标记为安全，则处理该输入。否则，该输入将被拒绝，并且应用程序会抛出错误。`<br />
    `2.剥离输入(过滤转义)：如果输入包含危险字符，则在处理之前删除这些字符。`
 <a name="authentication"></a>
-# ****
+# Broken Authentication
+
 <a name="Sensitive-Data-Exposure"></a>
 <a name="XML-External-Entity"></a>
 <a name="Broken-Access-Control"></a>
