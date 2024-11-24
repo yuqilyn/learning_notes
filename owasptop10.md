@@ -1,5 +1,5 @@
 ### **[一. Injection](#Injection-text)**  
-### **[二. Broken Authentication](#Authentication)**  
+### **[二. Broken Authentication](#authentication)**  
 ### **[三. Sensitive Data Exposure](#Sensitive-Data-Exposure)**  
 ### **[四. XML External Entity](#XML-External-Entity)**  
 ### **[五. Broken Access Control](#Broken-Access-Control)**  
@@ -31,7 +31,7 @@
 防止注入攻击的主要措施是确保用户控制的输入不会被解释为查询或命令。有多种方法可以做到这一点：<br />
    `1.使用允许列表(白名单)：当输入发送到服务器时，将此输入与安全输入或字符列表进行比较。如果输入被标记为安全，则处理该输入。否则，该输入将被拒绝，并且应用程序会抛出错误。`<br />
    `2.剥离输入(过滤转义)：如果输入包含危险字符，则在处理之前删除这些字符。`
-<a name="Authentication"></a>
+<a name="authentication"></a>
 # ****
 <a name="Sensitive-Data-Exposure"></a>
 <a name="XML-External-Entity"></a>
