@@ -52,11 +52,52 @@ JWT 库通常提供一种验证令牌的方法和另一种仅解码令牌的方�
 ```
 hashcat -a 0 -m 16500 jwt /usr/share/wordlists/jwt_secret
 ```
-
-
-
-
-
+`Hashcat 使用单词表中的每个秘密对 JWT 中的标头和有效负载进行签名，然后将生成的签名与来自服务器的原始签名进行比较`<br/>
+`如果任何签名匹配，hashcat 将以以下格式输出已识别的秘密以及其他各种详细信息：`</br>
+```
+<jwt>:<identified-secret>
+```
+#####然后使用burp的Json Web Tokens插件，修改完你要修改的信息后，输入密钥后重新计算签名
+![image](https://github.com/user-attachments/assets/0a88f532-527a-49e8-aaa4-69e784b5d01a)
+#### 三、JWT 标头参数注入
+##### JWT标头易受攻击参数简介
+`根据 JWS 规范，只有 alg 标头参数是强制性的。但实际上，JWT 标头（也称为 JOSE 标头）通常包含其他几个参数。以下参数对攻击者特别感兴趣。`<br/>
+```
+1、jwk (JSON Web Key) -- 提供代表密钥的嵌入式 JSON 对象
+2、jku (JSON Web Key Set URL) -- 提供一个 URL，服务器可以从中获取一组包含正确密钥的密钥组。
+3、kid (Key ID) -- 提供一个 ID，当有多个密钥可供选择时，服务器可以使用它来识别正确的密钥。根据密钥的格式，它可能具有匹配的 kid 参数。
+```
+`如您所见，这些用户可控制的参数分别告诉接收方服务器在验证签名时使用哪个密钥。这为实现给服务器指定自己的密钥提供了可能性`
+##### （1）通过 jwk 参数注入自签名 JWT
+`JSON Web 签名 (JWS) 规范描述了一个可选的 jwk 标头参数，服务器可以使用它来将其公钥以 JWK 格式直接嵌入到令牌本身中。`<br/>
+#example header:
+```
+{
+    "kid": "ed2Nf8sb-sD6ng0-scs5390g-fFD8sfxG",
+    "typ": "JWT",
+    "alg": "RS256",
+    "jwk": {
+        "kty": "RSA",
+        "e": "AQAB",
+        "kid": "ed2Nf8sb-sD6ng0-scs5390g-fFD8sfxG",
+        "n": "yy1wpYmffgXBxhAUJzHHocCuJolwDqql75ZWuCQ_cb33K2vh9m"
+    }
+}
+```
+###### 漏洞产生原因
+```
+理想情况下，服务器应仅使用有限的公钥白名单来验证 JWT 签名。但是，配置错误的服务器有时会使用嵌入在 jwk 参数中的任何密钥。
+您可以使用自己的 RSA 私钥对修改后的 JWT 进行签名，然后将匹配的公钥嵌入 jwk 标头中，从而利用此漏洞。
+```
+###### 使用BP的插件JWT Editer来测试该类型漏洞
+```
+1、加载扩展后，在 Burp 的主选项卡栏中，转到 JWT 编辑器密钥选项卡。
+2、生成新的 RSA 密钥。
+3、向 Burp Repeater 发送包含 JWT 的请求。
+4、在消息编辑器中，切换到扩展生成的 JSON Web Token 选项卡，并根据需要修改令牌的有效负载。
+5、单击攻击，然后选择嵌入式 JWK。出现提示时，选择新生成的 RSA 密钥。
+6、发送请求以测试服务器的响应方式。
+```
 
 
 
