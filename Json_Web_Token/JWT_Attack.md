@@ -98,8 +98,44 @@ hashcat -a 0 -m 16500 jwt /usr/share/wordlists/jwt_secret
 5、单击攻击，然后选择嵌入式 JWK。出现提示时，选择新生成的 RSA 密钥。
 6、发送请求以测试服务器的响应方式。
 ```
+![image](https://github.com/user-attachments/assets/50ccc8f5-bb05-41ab-86ad-c0fb10339691)
 
+![image](https://github.com/user-attachments/assets/c6b9c225-883d-4b4f-90f4-32e2c5146971)
 
+![image](https://github.com/user-attachments/assets/d9dbe216-34d8-4e1c-9454-5148d0d07f55)
 
+##### （2）通过 jku 参数注入自签名 JWT
+`一些服务器不直接使用 jwk 标头参数嵌入公钥，而是允许您使用 jku（JWK Set URL）标头参数来引用包含密钥的 JWK Set。验证签名时，服务器会从此 URL 获取相关密钥。`<br/>
+###### JWK Set介绍
+`JWK Set 是一个 JSON 对象，其中包含代表不同键的 JWK 数组。`<br/>
+#example:
+```
+{
+    "keys": [
+        {
+            "kty": "RSA",
+            "e": "AQAB",
+            "kid": "75d0ef47-af89-47a9-9061-7c02a610d5ab",
+            "n": "o-yy1wpYmffgXBxhAUJzHHocCuJolwDqql75ZWuCQ_cb33K2vh9mk6GPM9gNN4Y_qTVX67WhsN3JvaFYw-fhvsWQ"
+        },
+        {
+            "kty": "RSA",
+            "e": "AQAB",
+            "kid": "d8fDFo-fS9-faS14a9-ASf99sa-7c1Ad5abA",
+            "n": "fc3f-yy1wpYmffgXBxhAUJzHql79gNNQ_cb33HocCuJolwDqmk6GPM4Y_qTVX67WhsN3JvaFYw-dfg6DH-asAScw"
+        }
+    ]
+}
+```
+`更安全的网站只会从受信任的域获取密钥，但有时您可以利用 URL 解析差异来绕过这种过滤。`<br/>
+#绕过方式:
+###### 1、您可以使用 @ 字符将凭据嵌入到主机名前的 URL 中。例如：
+`https://expected-host:fakepassword@evil-host`<br/>
+###### 2、您可以使用 # 字符来表示 URL 片段。例如：
+`https://evil-host#expected-host`<br/>
+###### 3、您可以利用 DNS 命名层次结构将所需的输入放入您控制的完全限定 DNS 名称中。例如：
+`https://expected-host.evil-host`<br/>
+###### 4、您可以对字符进行 URL 编码，以混淆 URL 解析代码。如果实现过滤器的代码处理 URL 编码字符的方式与执行后端 HTTP 请求的代码不同，则这种方法特别有用。您还可以尝试对字符进行双重编码；某些服务器会递归地对收到的输入进行 URL 解码，这可能会导致进一步的差异
+![image](https://github.com/user-attachments/assets/82a7de7d-8506-4cf4-b1d7-bfd0fc92fc2a)
 
 
