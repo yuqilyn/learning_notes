@@ -213,7 +213,7 @@ verify(token, publicKey);
 
 
 
-<a name="symmetric"></a>
+<a name="symmetric">两种不同方式的加密算法介绍</a><br/>
 `JWT 可以使用多种不同的算法进行签名。其中一些算法（如 HS256 (HMAC + SHA-256)）使用“对称”密钥。这意味着服务器使用单个密钥来签名和验证令牌。显然，这需要保密，就像密码一样。`
 ![image](https://github.com/user-attachments/assets/e830bf41-f330-49f2-9761-862bb55abae3)
 `其他算法（例如 RS256（RSA + SHA-256））使用“非对称”密钥对。该密钥对由一个私钥（服务器使用该私钥对令牌进行签名）和一个数学相关的公钥（可用于验证签名）组成。`
