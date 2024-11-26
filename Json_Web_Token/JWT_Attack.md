@@ -194,7 +194,7 @@ verify(token, publicKey);
 `在这种情况下，如果服务器收到使用对称算法（如 HS256）签名的令牌，则库的通用 verify() 方法会将公钥视为 HMAC 密钥。这意味着攻击者可以使用 HS256 和公钥对令牌进行签名，服务器将使用相同的公钥来验证签名。`<br/>
 ##### 一般攻击步骤
 ```
-1、获取服务器的公钥
+1、获取服务器的公钥(因为服务器进行验证的时候用的是自己本地的公钥作为HMAC密钥)
 2、将公钥转化为合适的格式
 3、使用修改后的payload和设置alg为HS256的header构造恶意的JWT
 4、使用HS256进行签名，并使用公钥作为密钥
@@ -214,8 +214,10 @@ verify(token, publicKey);
 
 
 <a name="symmetric"></a>
-
-
+`JWT 可以使用多种不同的算法进行签名。其中一些算法（如 HS256 (HMAC + SHA-256)）使用“对称”密钥。这意味着服务器使用单个密钥来签名和验证令牌。显然，这需要保密，就像密码一样。`
+![image](https://github.com/user-attachments/assets/e830bf41-f330-49f2-9761-862bb55abae3)
+`其他算法（例如 RS256（RSA + SHA-256））使用“非对称”密钥对。该密钥对由一个私钥（服务器使用该私钥对令牌进行签名）和一个数学相关的公钥（可用于验证签名）组成。`
+![image](https://github.com/user-attachments/assets/697962a7-ef6e-48ae-b161-a923ca15cf74)
 
 
 
