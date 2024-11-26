@@ -153,4 +153,72 @@ hashcat -a 0 -m 16500 jwt /usr/share/wordlists/jwt_secret
 ```
 `如果服务器将其验证密钥存储在数据库中，则 kid 标头参数也是 SQL 注入攻击的潜在载体。`
 ![image](https://github.com/user-attachments/assets/e99997cb-1cff-4c1f-a55c-67503e69f7b5)
+##### （4）一些其他的可被攻击的标头参数
+```
+cty（内容类型） - 有时用于声明 JWT 有效负载中内容的媒体类型。这通常会从标头中省略，但底层解析库可能无论如何都会支持它。如果您找到了绕过签名验证的方法，可以尝试注入 cty 标头以将内容类型更改为 text/xml 或 application/x-java-serialized-object，这可能会为 XXE 和反序列化攻击提供新的载体。
+
+x5c（X.509 证书链） - 有时用于传递用于对 JWT 进行数字签名的密钥的 X.509 公钥证书或证书链。此标头参数可用于注入自签名证书，类似于上面讨论的 jwk 标头注入攻击。由于 X.509 格式及其扩展的复杂性，解析这些证书也可能引入漏洞。这些攻击的详细信息超出了这些材料的范围，但有关更多详细信息，请查看 CVE-2017-2800 和 CVE-2018-2633。
+```
+
+#### 四、JWT 算法混乱
+[对称加密算法和非对称加密算法介绍](#symmetric)
+
+`介绍:`<br/>
+```
+即使服务器使用了您无法暴力破解的强密码，您仍然可以通过使用开发人员未曾预料到的算法对令牌进行签名来伪造有效的 JWT。这被称为算法混淆攻击。
+算法混淆攻击（也称为密钥混淆攻击）是指攻击者能够强制服务器使用与网站开发人员预期不同的算法来验证 JSON Web 令牌 (JWT) 的签名。
+如果这种情况处理不当，攻击者可能会伪造包含任意值的有效 JWT，而无需知道服务器的秘密签名密钥。
+```
+##### 产生原因
+```
+算法混淆漏洞通常是由于 JWT 库的实现存在缺陷而引起的。尽管实际验证过程因所用算法而异，但许多库都提供了一种与算法无关的签名验证方法。
+这些方法依赖于令牌标头中的 alg 参数来确定它们应执行的验证类型。
+```
+#example:
+```
+function verify(token, secretOrPublicKey){
+    algorithm = token.getAlgHeader();
+    if(algorithm == "RS256"){
+        // Use the provided key as an RSA public key
+    } else if (algorithm == "HS256"){
+        // Use the provided key as an HMAC secret key
+    }
+}
+```
+`当网站开发人员随后使用此方法时，他们会假设该方法将专门处理使用 RS256 等非对称算法签名的 JWT，这时就会出现问题。由于这个错误的假设，他们可能总是将一个固定的公钥(存储在服务器上)传递给该方法`<br/>
+```
+publicKey = <public-key-of-server>;
+token = request.getCookie("session");
+verify(token, publicKey);
+```
+`在这种情况下，如果服务器收到使用对称算法（如 HS256）签名的令牌，则库的通用 verify() 方法会将公钥视为 HMAC 密钥。这意味着攻击者可以使用 HS256 和公钥对令牌进行签名，服务器将使用相同的公钥来验证签名。`<br/>
+##### 一般攻击步骤
+```
+1、获取服务器的公钥
+2、将公钥转化为合适的格式
+3、使用修改后的payload和设置alg为HS256的header构造恶意的JWT
+4、使用HS256进行签名，并使用公钥作为密钥
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<a name="symmetric"></a>
+
+
+
+
+
+
+
 
