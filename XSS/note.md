@@ -241,5 +241,37 @@ https://YOUR-LAB-ID.web-security-academy.net/post?postId=5&%27},x=x=%3E{throw/**
 4、因为过滤了()和空格，所以用/**/代替空格，同时使用toString内置函数来触发x函数
 5、window+''字符串拼接会触发toString(),然后触发x()
 ```
+###### 使用 HTML 编码
+`当 XSS 上下文是带引号的标签属性内的一些现有 JavaScript（例如事件处理程序）时，可以利用 HTML 编码来绕过某些输入过滤器。`<br/>
+`当浏览器解析出响应中的 HTML 标签和属性时，它将对标签属性值执行 HTML 解码，然后再进行进一步处理。`<br/>
+`如果服务器端应用程序阻止或清除成功利用 XSS 所需的某些字符，您通常可以通过对这些字符进行 HTML 编码来绕过输入验证。`<br/>
+#example:
+```
+<a href="#" onclick="... var input='controllable data here'; ...">
+```
+`使用html编码来绕过单引号限制`
+```
+&apos;-alert(document.domain)-&apos;
+```
+###### JavaScript 模板文字中的 XSS
+`JavaScript 模板文字是允许嵌入 JavaScript 表达式的字符串文字。嵌入的表达式会被求值，并且通常会连接到周围的文本中。模板文字封装在反引号中，而不是正常的引号中，并且使用 ${...} 语法来标识嵌入的表达式。`<br/>
+`例如，以下脚本将打印包含用户显示名称的欢迎消息：`<br/>
+```
+document.getElementById('message').innerText = `Welcome, ${user.displayName}.`;
+```
+`当 XSS 上下文位于 JavaScript 模板文字中时，无需终止文字。相反，您只需使用 ${...} 语法嵌入将在处理文字时执行的 JavaScript 表达式即可。例如，如果 XSS 上下文如下：`
+```
+<script>
+...
+var input = `controllable data here`;
+...
+</script>
+```
+`然后，您可以使用以下有效负载来执行 JavaScript，而无需终止模板文字：`
+```
+${alert(document.domain)}
+```
+![image](https://github.com/user-attachments/assets/98195a59-6687-4c7e-ac7f-de7ecd5e3d6f)
+
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
