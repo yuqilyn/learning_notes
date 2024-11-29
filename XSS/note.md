@@ -167,5 +167,10 @@ https://YOUR-LAB-ID.web-security-academy.net/?search=%3Csvg%3E%3Ca%3E%3Canimate+
 payload example：
 "onmouseover/onclick/onfocus="javascript:alert(1)
 ```
+###### 利用组合键来触发事件
+`您可能会遇到一些网站，它们对尖括号进行编码，但仍允许您注入属性。有时，即使在通常不会自动触发事件的标签（例如规范（canonical）标签）中，这些注入也是可能的。您可以使用 Chrome 上的访问键和用户交互来利用此行为。访问键允许您提供引用特定元素的键盘快捷键。accesskey 属性允许您定义一个字母，当与其他键组合按下时（这些键在不同平台上有所不同），将触发事件。`<br/>
+![image](https://github.com/user-attachments/assets/4736de3c-dac5-4ff8-aa84-47acbaf22282)
+
+
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
