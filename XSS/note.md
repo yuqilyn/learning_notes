@@ -321,6 +321,20 @@ Database
 `接收器是一种潜在危险的 JavaScript 函数或 DOM 对象，如果将攻击者控制的数据传递给它，则可能导致不良影响。例如，eval() 函数是一个接收器，因为它将传递给它的参数处理为 JavaScript。HTML 接收器的一个示例是 document.body.innerHTML，因为它可能允许攻击者注入恶意 HTML 并执行任意 JavaScript。`<br/>
 `从根本上讲，当网站将数据从源传递到接收器，然后在客户端会话的上下文中以不安全的方式处理数据时，就会出现基于 DOM 的漏洞。`<br/>
 `最常见的来源是 URL，通常使用位置对象访问。攻击者可以构建一个链接，将受害者发送到易受攻击的页面，其中包含查询字符串中的有效负载和 URL 的片段部分。请考虑以下代码：`<br/>
+```
+goto = location.hash.slice(1)
+if (goto.startsWith('https:')) {
+  location = goto;
+}
+```
+`这很容易受到基于 DOM 的开放重定向的攻击，因为 location.hash 源是以不安全的方式处理的。`<br/>
+`如果 URL 包含以 https: 开头的哈希片段，则此代码将提取 location.hash 属性的值并将其设置为windows的 location 属性。`<br/>
+`攻击者可以通过构建以下 URL 来利用此漏洞`<br/>
+```
+https://www.innocent-website.com/example#https://www.evil-user.net
+
+当受害者访问此 URL 时，JavaScript 会将 location 属性的值设置为 https://www.evil-user.net，从而自动将受害者重定向到恶意网站。这种行为很容易被利用来构建网络钓鱼攻击。
+```
 ##### 可能导致DOM漏洞的接收器
 ```
 基于 DOM 的漏洞     接收器
@@ -340,4 +354,13 @@ HTML5 存储操纵    sessionStorage.setItem()
 客户端 JSON 注入  JSON.parse()
 DOM 数据操纵      element.setAttribute()
 拒绝服务          RegExp()
+```
+### DOM 破坏
+```
+待续...
+```
+### 如何预防基于 DOM 的污染流漏洞
+```
+避免允许来自任何不受信任来源的数据动态更改传输到任何接收器的值。
+如果应用程序所需的功能意味着这种行为是不可避免的，那么必须在客户端代码中实施防御措施。在许多情况下，可以根据白名单验证相关数据，只允许已知安全的内容。在其他情况下，需要对数据进行清理或编码。这可能是一项复杂的任务，并且根据要插入数据的上下文，可能涉及 JavaScript 转义、HTML 编码和 URL 编码的组合，并按适当的顺序进行。
 ```
