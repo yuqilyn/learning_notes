@@ -274,4 +274,11 @@ ${alert(document.domain)}
 ![image](https://github.com/user-attachments/assets/98195a59-6687-4c7e-ac7f-de7ecd5e3d6f)
 
 ### (2) DOM型XSS -- 恶意脚本来自网站的数据库
+[DOM介绍](#dom)
+#### 什么是基于 DOM 的跨站脚本？
+`基于 DOM 的 XSS 漏洞通常出现在 JavaScript 从攻击者可控制的源（例如 URL）获取数据并将其传递给支持动态代码执行的接收器（例如 eval() 或 innerHTML）时。这使得攻击者能够执行恶意 JavaScript，通常允许他们劫持其他用户的帐户。`<br/>
+`要发起基于 DOM 的 XSS 攻击，您需要将数据放入源，以便将其传播到接收器并导致执行任意 JavaScript。`<br/>
+`DOM XSS 最常见的来源是 URL，通常通过 window.location 对象访问。`<br/>
+`攻击者可以构建一个链接，将受害者发送到一个易受攻击的页面，其中包含查询字符串和 URL 的片段部分中的有效负载。`<br/>
+`在某些情况下，例如当针对 404 页面或运行 PHP 的网站时，有效负载也可以放在路径中。`<br/>
 ### (3) 存储型XSS -- 漏洞存在于客户端代码中，而不是服务器端代码中。
