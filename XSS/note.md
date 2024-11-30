@@ -286,4 +286,58 @@ ${alert(document.domain)}
 
 
 <a name="dom"></a>
+## 基于DOM的漏洞介绍
+### 什么是DOM?
+```
+文档对象模型 (DOM) 是 Web 浏览器对页面上元素的分层表示。网站可以使用 JavaScript 来操作 DOM 的节点和对象及其属性。DOM 操作本身并不是问题。事实上，它是现代网站运作方式不可或缺的一部分。但是，不安全地处理数据的 JavaScript 可能会导致各种攻击。当网站包含 JavaScript 时，它会获取攻击者可控制的值（称为源），并将其传递给危险函数（称为接收器），就会出现基于 DOM 的漏洞。
+```
+### 污染流漏洞
+`许多基于 DOM 的漏洞都可以追溯到客户端代码操纵攻击者可控制数据的方式存在问题`
+#### 源(source)
+`来源是一种 JavaScript 属性，它接受可能受攻击者控制的数据。来源的一个例子是 location.search 属性，因为它从查询字符串中读取输入，这对攻击者来说相对容易控制。最终，任何可由攻击者控制的属性都是潜在来源。这包括引用 URL（由 document.referrer 字符串公开）、用户的 Cookie（由 document.cookie 字符串公开）和网络消息。`
 
+##### 常见的源
+```
+document.URL
+document.documentURI
+document.URLUnencoded
+document.baseURI
+location
+document.cookie
+document.referrer
+window.name
+history.pushState
+history.replaceState
+localStorage
+sessionStorage
+IndexedDB (mozIndexedDB, webkitIndexedDB, msIndexedDB)
+Database
+#####
+反射数据
+存储数据
+网络信息
+```
+#### sink(接收器)
+`接收器是一种潜在危险的 JavaScript 函数或 DOM 对象，如果将攻击者控制的数据传递给它，则可能导致不良影响。例如，eval() 函数是一个接收器，因为它将传递给它的参数处理为 JavaScript。HTML 接收器的一个示例是 document.body.innerHTML，因为它可能允许攻击者注入恶意 HTML 并执行任意 JavaScript。`<br/>
+`从根本上讲，当网站将数据从源传递到接收器，然后在客户端会话的上下文中以不安全的方式处理数据时，就会出现基于 DOM 的漏洞。`<br/>
+`最常见的来源是 URL，通常使用位置对象访问。攻击者可以构建一个链接，将受害者发送到易受攻击的页面，其中包含查询字符串中的有效负载和 URL 的片段部分。请考虑以下代码：`<br/>
+##### 可能导致DOM漏洞的接收器
+```
+基于 DOM 的漏洞     接收器
+DOM XSS            document.write()
+打开重定向          LABS window.location
+Cookie 操纵        document.cookie
+JavaScript 注入    eval()
+文档域操纵          document.domain
+WebSocket-URL中毒  WebSocket()
+链接操纵           element.src
+Web 消息操纵       postMessage()
+Ajax 请求标头操纵  setRequestHeader()
+本地文件路径操纵   FileReader.readAsText()
+客户端 SQL 注入   ExecuteSql()
+HTML5 存储操纵    sessionStorage.setItem()
+客户端 XPath 注入 document.evaluate()
+客户端 JSON 注入  JSON.parse()
+DOM 数据操纵      element.setAttribute()
+拒绝服务          RegExp()
+```
