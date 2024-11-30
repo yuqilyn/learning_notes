@@ -358,6 +358,7 @@ DOM 数据操纵      element.setAttribute()
 ### DOM 破坏
 ```
 待续...
+https://portswigger.net/web-security/dom-based/dom-clobbering
 ```
 ### 如何预防基于 DOM 的污染流漏洞
 ```
